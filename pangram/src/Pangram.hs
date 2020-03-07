@@ -1,11 +1,10 @@
 module Pangram (isPangram) where
 
 import Data.Char (isAlpha, isAscii, toLower)
-import Data.List (sort)
+import Data.List (intersect)
 
 isPangram :: String -> Bool
-isPangram text = (== ['a'..'z']) . unique . sort . map (toLower) . filter onlyAsciiLetters $ text
+isPangram text = (== ['a'..'z']) . (['a'..'z'] `intersect`). map (toLower) . filter onlyAsciiLetters $ text
     where
-        unique = foldr (\x acc -> if x `elem` acc then acc else x:acc) []
         onlyAsciiLetters = (\x -> isAlpha x && isAscii x)
 
