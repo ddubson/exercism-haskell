@@ -1,7 +1,6 @@
 module Bob (responseFor) where
 
 import Data.Char (isAlpha, isSpace, isAscii, isUpper)
-import Data.Maybe (isNothing)
 
 isMaybeEmpty :: [Char] -> Maybe [Char]
 isMaybeEmpty [] = Nothing
@@ -11,11 +10,8 @@ isMaybeShouting :: Maybe [Char] -> Bool
 isMaybeShouting Nothing = False
 isMaybeShouting (Just x) = all (isUpper) $ x
 
-clean :: String -> String
-clean str = filter (\x -> not . isSpace $ x) $ str
-
 responseFor :: String -> String
-responseFor xs = resolve . clean $ xs
+responseFor xs = resolve . filter (\x -> not . isSpace $ x) $ xs
 
 resolve :: String -> String
 resolve xs
@@ -27,5 +23,4 @@ resolve xs
         where
             isAskingQuestion = (=='?') . last
             onlyAsciiLetters = (\x -> isAlpha x && isAscii x)
-            isSayingThings = isMaybeEmpty . filter (onlyAsciiLetters)
-            isShouting = isMaybeShouting . isSayingThings
+            isShouting = isMaybeShouting . isMaybeEmpty . filter (onlyAsciiLetters)
