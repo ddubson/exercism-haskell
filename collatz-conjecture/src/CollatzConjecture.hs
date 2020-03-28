@@ -3,8 +3,10 @@ module CollatzConjecture (collatz) where
 collatz :: Integer -> Maybe Integer
 collatz n = collatzK n 0
         where
-            collatzK n calls
-                | n < 1 = Nothing
-                | n == 1 = Just calls
-                | even n = collatzK ((`div` 2) $ n) (calls+1)
-                | otherwise = collatzK ((+1) . (* 3) $ n) (calls+1)
+            collatzK x calls
+                | x < 1 = Nothing
+                | x == 1 = Just calls
+                | otherwise = collatzK (
+                    let (t, r) = x `quotRem` 2
+                    in
+                      if r == 0 then t else (x * 3 + 1)) (calls + 1)
