@@ -6,7 +6,7 @@ collatz n = collatzK n 0
             collatzK x calls
                 | x < 1 = Nothing
                 | x == 1 = Just calls
-                | otherwise = collatzK (
-                    let (t, r) = x `quotRem` 2
-                    in
-                      if r == 0 then t else (x * 3 + 1)) (calls + 1)
+                | otherwise = collatzK result (calls+1)
+                where
+                  result = if even x then fst (x `quotRem` 2) else (x * 3 + 1)
+
