@@ -1,23 +1,37 @@
 module Phone (number) where
 
-import Data.Char (isDigit)
+import Data.Char (isDigit, isAlpha)
 
-cleanInput :: String -> String
-cleanInput input = foldr (\x acc -> if isDigit x then x:acc else acc) [] input
+type MaybeString = String -> Maybe String
 
-isValidLen :: String -> Maybe String
-isValidLen input
-    | lengthIsEleven && atIdx 4 '1' || atIdx 4 '0' = Nothing
-    | lengthIsEleven && atIdx 1 '0' || atIdx 1 '1' = Nothing
-    | lengthIsEleven && atIdx 0 '1' = Just (tail input)
-    | lengthIsTen && atIdx 0 '0' || atIdx 0 '1' = Nothing
-    | lengthIsTen && atIdx 3 '0' || atIdx 3 '1' = Nothing
-    | lengthIsTen = Just input
-    | otherwise = Nothing
-    where
-        lengthIsEleven = (==11) . length $ input
-        lengthIsTen = (==10) . length $ input
-        atIdx idx ch = (== ch) . (!! idx) $ input
+exchangeCodeCheck :: MaybeString
+exchangeCodeCheck input | input !! 3 == '1' || input !! 3 == '0' = Nothing
+                        | otherwise = Just input
 
-number :: String -> Maybe String
-number xs = isValidLen . cleanInput $ xs
+areaCodeCheck :: MaybeString
+areaCodeCheck (x:xs) | x == '1' || x == '0' = Nothing
+                     | otherwise = Just (x:xs)
+
+illegalCharCheck :: MaybeString
+illegalCharCheck input | any (\x -> isAlpha x || x == '!') input = Nothing
+                       | otherwise = Just input
+
+isValidLen :: MaybeString
+isValidLen (x:xs) | numberLength == 11 = Just (x:xs) >>= countryCodeCheck
+                                                     >>= areaCodeCheck
+                                                     >>= exchangeCodeCheck
+                  | numberLength == 9 || numberLength > 11 = Nothing
+                  | otherwise = Just (x:xs)
+                  where
+                    countryCodeCheck (y:ys) | y /= '1' = Nothing
+                                            | otherwise = Just ys
+                    numberLength = length (x:xs)
+
+number :: MaybeString
+number xs = Just xs >>= illegalCharCheck
+                    >>= filterByDigit
+                    >>= isValidLen
+                    >>= areaCodeCheck
+                    >>= exchangeCodeCheck
+            where
+              filterByDigit n = Just (filter isDigit n)
