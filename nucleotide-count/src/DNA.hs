@@ -1,5 +1,6 @@
 module DNA (nucleotideCounts, Nucleotide(..)) where
 
+import Data.Maybe (fromJust)
 import Data.Map (Map, fromList, insertWith, size)
 
 data Nucleotide = A | C | G | T deriving (Eq, Ord, Show)
@@ -16,11 +17,11 @@ emptyMap = fromList [(A,0),(C,0),(G,0),(T,0)]
 
 nucleotideCounts :: String -> Either String (Map Nucleotide Int)
 nucleotideCounts xs = let
-                        maybeNucleoString = map (toNucleotide) $ (:[]) <$> xs
+                        maybeNucleoString = traverse (toNucleotide) $ (:[]) <$> xs
                         builtMap = foldr insert emptyMap $ fromJust $ maybeNucleoString
                                     where
                                       insert x agg = insertWith (+) x 1 agg
                       in
                         case maybeNucleoString of
-                          Nothing -> Left
+                          Nothing -> Left ""
                           otherwise -> Right builtMap
